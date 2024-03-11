@@ -1,21 +1,22 @@
 const database = require('./../database')
 
-exports.listarProdutos = (req, res) => {
-    database.query('SELECT * FROM cervejas').then((resultado) => {
-        res.status(200).send({ produtos: resultado.rows })
+exports.BuscarCerevejaNomeCompleto = (req, res) => {
+    const { nome } = req.params
+    const query = 'SELECT * FROM cervejas WHERE nome = $1'
+    database.query(query, [nome]).then((resultado) => {
+        res.status(200).send({ produtos: resultado.rows[0] })
     }, () => {
         res.status(500).send({ status: 'Erro de database' })
     })
 }
-exports.listarPeloNome = (req, res) => {
-    const { nome } = req.body
-    const query = 'SELECT $1 FROM cervejas'
-    database.query(query,[nome] ).then(() =>{
-        res.status(200).send({status: "produto inserido"})
-    }), ()=>{
-        res.status(500).send({status: "Deu merda"})
+exports.BuscarCerevejanomeParcial = (req, res) => {
+    const { nome } = req.params
+    const query = 'SELECT * FROM cervejas WHERE nome LIKE $1'
+    database.query(query, [`%${nome}%`]).then((resultado) => {
+        res.status(200).send({ produtos: resultado.rows[0]})
+    }), () => {
+        res.status(500).send({ status: "Deu merda" })
     }
-
 }
 
 exports.cadastrarProduto = (req, res) => {
@@ -32,7 +33,7 @@ exports.cadastrarProduto = (req, res) => {
 exports.removerProduto = (req, res) => {
     const { id } = req.params
 
-    database.query('DELETE from produtos WHERE id=$1', [id]).then(() => {
+    database.query('DELETE FROM cervejas WHERE id = $1', [id]).then(() => {
         res.status(200).send({ status: 'Produto removido' })
     })
 }
